@@ -9,7 +9,7 @@ function truncate(str, maxLength) {
 }
 
 async function sendEmbed(entity, embed, ephemeral = false) {
-  const { title, description, imageUrl, noReply } = embed;
+  const { title, description, imageUrl, noReply, files, dm } = embed;
   const { guild } = entity;
   const user = entity.user || entity.author;
 
@@ -35,14 +35,20 @@ async function sendEmbed(entity, embed, ephemeral = false) {
     ephemeral: ephemeral
   };
 
-  if (imageUrl) {
-    options.files = [{
-      attachment: imageUrl
-    }];
+  if (imageUrl || files) {
+    options.files = [];
+  
+    if (imageUrl) {
+      options.files.push({ attachment: imageUrl });
+    }
+  
+    if (files) {
+      options.files.push(...files);
+    }
   }
 
-  let mainError;
-  if (!noReply) {
+  let mainError = 'null';
+  if (!noReply && !dm) {
     try {
       if (entity.reply) {
         const msg = await entity.reply(options);
@@ -53,8 +59,18 @@ async function sendEmbed(entity, embed, ephemeral = false) {
       console.error(`Error replying to entity: ${error.message}`);
     }
   }
+  
+  if (dm) {
+    try {
+      const msg = await user.send(options);
+      return msg;
+    } catch (error) {
+      mainError = error.message;
+      console.error(`Error DMing to entity: ${error.message}`);
+    }
+  }
 
-  if (!ephemeral) {
+  if (!ephemeral && !dm) {
     try {
       if (entity.channel && entity.channel.send) {
         const msg = await entity.channel.send(options);
@@ -112,10 +128,16 @@ async function editEmbed(botMessage, newEmbed, interaction) {
     embeds: [updatedEmbed]
   };
 
+  const existingAttachments = botMessage.attachments.map(attachment => ({
+    attachment: attachment.url
+  }));
+
   if (imageUrl) {
     options.files = [{
       attachment: imageUrl
-    }];
+    }, ...existingAttachments];
+  } else {
+    options.files = existingAttachments;
   }
 
   try {

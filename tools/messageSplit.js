@@ -18,14 +18,14 @@ function splitCodesAndText(text) {
   return result;
 }
 
-function processChunks(chunks) {
-  function splitLargeChunk(chunk, delimiter) {
+function processChunks(chunks, maxLength = 2000) {
+  function splitLargeChunk(chunk, delimiter, maxLength) {
     const parts = chunk.split(delimiter);
     let processedParts = [];
 
     let currentPart = parts[0];
     for (let i = 1; i < parts.length; i++) {
-      if ((currentPart + delimiter + parts[i]).length > 2000) {
+      if ((currentPart + delimiter + parts[i]).length > maxLength) {
         processedParts.push(currentPart);
         currentPart = parts[i];
       } else {
@@ -37,7 +37,7 @@ function processChunks(chunks) {
   }
 
   const finalChunks = chunks.reduce((acc, chunk) => {
-    if (chunk.length <= 2000) {
+    if (chunk.length <= maxLength) {
       if (chunk.trim()) {
         acc.push(chunk);
       }
@@ -46,8 +46,8 @@ function processChunks(chunks) {
       let splitSuccessful = false;
 
       for (const delimiter of delimiters) {
-        const splitChunks = splitLargeChunk(chunk, delimiter);
-        if (splitChunks.every(subChunk => subChunk.length <= 2000)) {
+        const splitChunks = splitLargeChunk(chunk, delimiter, maxLength);
+        if (splitChunks.every(subChunk => subChunk.length <= maxLength)) {
           splitChunks.forEach(splitChunk => {
             if (splitChunk.trim()) {
               acc.push(splitChunk);
@@ -59,8 +59,8 @@ function processChunks(chunks) {
       }
 
       if (!splitSuccessful) {
-        for (let pos = 0; pos < chunk.length; pos += 1950) {
-          const part = chunk.slice(pos, pos + 1950);
+        for (let pos = 0; pos < chunk.length; pos += maxLength - 50) {
+          const part = chunk.slice(pos, pos + maxLength - 50);
           if (part.trim()) {
             acc.push(part);
           }
@@ -73,14 +73,14 @@ function processChunks(chunks) {
   return finalChunks;
 }
 
-async function sendSplitMessage(botResponse, message) {
+async function sendSplitMessage(botResponse, entity) {
   const chunks = splitCodesAndText(botResponse).filter(chunk => chunk.trim());
   const processedChunks = processChunks(chunks).filter(chunk => chunk.trim());
 
-  if (message && processedChunks.length > 0) {
-    let lastMessage = await message.reply(processedChunks[0]);
+  if (entity && processedChunks.length > 0) {
+    let lastMessage = await entity.reply(processedChunks[0]);
     for (let i = 1; i < processedChunks.length; i++) {
-      lastMessage = await message.channel.send(processedChunks[i]);
+      lastMessage = await entity.channel.send(processedChunks[i]);
     }
     return { chunks, lastMessage };
   }
@@ -88,14 +88,14 @@ async function sendSplitMessage(botResponse, message) {
   return { chunks };
 }
 
-async function sendSplitEmbedMessage(botResponse, message) {
+async function sendSplitEmbedMessage(botResponse, entity) {
   const chunks = splitCodesAndText(botResponse).filter(chunk => chunk.trim());
-  const processedChunks = processChunks(chunks).filter(chunk => chunk.trim());
+  const processedChunks = processChunks(chunks, 4000).filter(chunk => chunk.trim());
 
-  if (message && processedChunks.length > 0) {
-    let lastMessage = await sendEmbed(message, { title: `Message: 1`, description: processedChunks[0]});
+  if (entity && processedChunks.length > 0) {
+    let lastMessage = await sendEmbed(entity, { title: `Message: 1`, description: processedChunks[0]});
     for (let i = 1; i < processedChunks.length; i++) {
-      lastMessage = await sendEmbed(message, { title: `Message: ${i + 1}`, description: processedChunks[i], noReply: true});
+      lastMessage = await sendEmbed(entity, { title: `Message: ${i + 1}`, description: processedChunks[i], noReply: true});
     }
     return { chunks, lastMessage };
   }
