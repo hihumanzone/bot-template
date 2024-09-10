@@ -20,12 +20,12 @@ async function handleMsgInfoCom(interaction) {
 - **Timestamp**: \`${message.createdAt}\``;
 
   if (trimmedContent.length > 0) {
-    msgInfo += `\n- **Content**: \n\`\`\`\n${trimmedContent.replace(/\`\`\`/g, '')}\n\`\`\``
+    msgInfo += `\n> Content: \n\`\`\`\n${trimmedContent.replace(/\`\`\`/g, '')}\n\`\`\``
   }
   if (message.embeds.length > 0) {
     const trimmedEmbedDescription = trimToMaxLength(message.embeds[0].description || '', MAX_LENGTH);
     if (trimmedEmbedDescription.length > 0) {
-      msgInfo += `\n- **Embed Description**: \n\`\`\`\n${trimmedEmbedDescription.replace(/\`\`\`/g, '')}\n\`\`\``;
+      msgInfo += `\n> Embed Description: \n\`\`\`\n${trimmedEmbedDescription.replace(/\`\`\`/g, '')}\n\`\`\``;
     }
   }
 

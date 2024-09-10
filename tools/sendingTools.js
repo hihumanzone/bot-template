@@ -1,12 +1,16 @@
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, AttachmentBuilder } = require('discord.js');
+const path = require('path');
+const url = require('url');
 
 const hexColour = '#505050'; // You can change this to any color you prefer
 const errorHexColour = '#e74c3c'; // Color for error embeds
-const fallbackIconURL = 'https://logowik.com/content/uploads/images/discord-new-20218785.jpg';
+const fallbackIconURL = 'https://ai.google.dev/static/site-assets/images/share.png';
+const fallbackText = 'Bot Template - Catalyst';
 
 function truncate(str, maxLength) {
   return str.length > maxLength ? str.slice(0, maxLength - 3) + '...' : str;
 }
+const generateRandom = () => (Math.random().toString(36).slice(2, 5));
 
 async function sendEmbed(entity, embed, ephemeral = false) {
   const { title, description, imageUrl, noReply, files, dm } = embed;
@@ -15,7 +19,7 @@ async function sendEmbed(entity, embed, ephemeral = false) {
 
   const truncatedAuthorName = truncate(`To ${user.username} - ${title}`, 256);
   const truncatedDescription = truncate(description, 4096);
-  const footerText = guild ? guild.name : 'Bot Template By Impulse';
+  const footerText = guild ? guild.name : fallbackText;
   const truncatedFooterText = truncate(footerText, 2048);
 
   const embedBuilder = new EmbedBuilder()
@@ -39,7 +43,12 @@ async function sendEmbed(entity, embed, ephemeral = false) {
     options.files = [];
   
     if (imageUrl) {
-      options.files.push({ attachment: imageUrl });
+      const parsedUrl = new URL(imageUrl);
+      const imageExtension = path.extname(parsedUrl.pathname) || '.png';
+      const imgName = `image-${generateRandom()}${imageExtension}`
+      const attachment = new AttachmentBuilder(imageUrl, { name: imgName });
+      embedBuilder.setImage(`attachment://${imgName}`)
+      options.files.push(attachment);
     }
   
     if (files) {
@@ -97,7 +106,7 @@ async function sendErrorDM(entity, errorMessage) {
       iconURL: user.displayAvatarURL()
     })
     .setFooter({
-      text: guild ? truncate(guild.name, 2048) : 'Bot Template By Impulse',
+      text: guild ? truncate(guild.name, 2048) : fallbackText,
       iconURL: guild ? (guild.iconURL() || fallbackIconURL) : fallbackIconURL
     });
 
@@ -111,7 +120,7 @@ async function sendErrorDM(entity, errorMessage) {
 }
 
 async function editEmbed(botMessage, newEmbed, interaction) {
-  const { title, description, imageUrl } = newEmbed;
+  const { title, description, imageUrl, files } = newEmbed;
   if (!botMessage.embeds || botMessage.embeds.length === 0) {
     return botMessage;
   }
@@ -131,11 +140,27 @@ async function editEmbed(botMessage, newEmbed, interaction) {
   const existingAttachments = botMessage.attachments.map(attachment => ({
     attachment: attachment.url
   }));
-
-  if (imageUrl) {
-    options.files = [{
-      attachment: imageUrl
-    }, ...existingAttachments];
+  
+  if (imageUrl || files) {
+    const existingAttachments = (botMessage.attachments || [])
+      .filter(attachment => !(attachment.name.startsWith('image-') && imageUrl))
+      .map(attachment => ({
+        attachment: attachment.url
+      }));
+    options.files = existingAttachments;
+  
+    if (imageUrl) {
+      const parsedUrl = new URL(imageUrl);
+      const imageExtension = path.extname(parsedUrl.pathname) || '.png';
+      const imgName = `image-${generateRandom()}${imageExtension}`
+      const attachment = new AttachmentBuilder(imageUrl, { name: imgName });
+      embedBuilder.setImage(`attachment://${imgName}`)
+      options.files.push(attachment);
+    }
+  
+    if (files) {
+      options.files.push(...files);
+    }
   } else {
     options.files = existingAttachments;
   }

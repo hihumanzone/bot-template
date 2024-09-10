@@ -107,14 +107,14 @@ function makeUserInstallable(command) {
   return { ...command, integration_types: [0, 1], contexts: [0, 1, 2] };
 }
 
-const allCommands = [makeUserInstallable(command1), userInfo, makeUserInstallable(msgInfo)]
+const allCommands = [command1, makeUserInstallable(userInfo), makeUserInstallable(msgInfo)]
 
 async function registerCommands(client) {
   const rest = new REST().setToken(process.env.DISCORD_TOKEN);
 
   try {
     await rest.put(Routes.applicationCommands(client.user.id), { body: allCommands });
-    console.log('=> Commands Reloaded');
+    console.log('=> Commands Reloaded!');
   } catch (error) {
     console.error('Error refreshing commands:', error.message);
   }

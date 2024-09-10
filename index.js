@@ -24,7 +24,7 @@ const client = new Client({
 // <=====[ Handling ]=====>
 
 client.once('ready', async () => {
-  console.log(`Logged in as ${client.user.username}!`);
+  console.log(`=> Logged in as \`${client.user.username}\`!`);
   await registerCommands(client);
 });
 
