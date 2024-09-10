@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, REST, Routes } = require('discord.js');
+const { SlashCommandBuilder, ContextMenuCommandBuilder, ApplicationCommandType, REST, Routes } = require('discord.js');
 
 const command1 = new SlashCommandBuilder()
   .setName('command1')
@@ -11,7 +11,7 @@ const command1 = new SlashCommandBuilder()
   );
 
 /*
-Complex command example:
+Complex command examples:
 ```js
 const config = JSON.parse(fs.readFileSync('config.json', 'utf-8'));
 
@@ -94,18 +94,27 @@ const describeImageCommand = new SlashCommandBuilder()
 ```
 */
 
+const userInfo = new ContextMenuCommandBuilder()
+	.setName('User Information')
+	.setType(ApplicationCommandType.User);
+
+const msgInfo = new ContextMenuCommandBuilder()
+	.setName('Message Information')
+	.setType(ApplicationCommandType.Message);
+
+
 function makeUserInstallable(command) {
   return { ...command, integration_types: [0, 1], contexts: [0, 1, 2] };
 }
 
-const allCommands = [makeUserInstallable(command1)]
+const allCommands = [makeUserInstallable(command1), userInfo, makeUserInstallable(msgInfo)]
 
 async function registerCommands(client) {
   const rest = new REST().setToken(process.env.DISCORD_TOKEN);
 
   try {
     await rest.put(Routes.applicationCommands(client.user.id), { body: allCommands });
-    console.log('Reloaded application (/) commands.');
+    console.log('=> Commands Reloaded');
   } catch (error) {
     console.error('Error refreshing commands:', error.message);
   }

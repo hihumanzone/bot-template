@@ -30,7 +30,7 @@ client.once('ready', async () => {
 
 client.on(Events.InteractionCreate, async (interaction) => {
   try {
-    if (interaction.isCommand()) {
+    if (interaction.isCommand() || interaction.isUserContextMenuCommand()) {
       await handleCommandInteraction(interaction);
     } else if (interaction.isButton()) {
       await handleButtonInteraction(interaction);

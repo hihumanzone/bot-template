@@ -1,10 +1,11 @@
 const { sendEmbed } = require('../tools/sendingTools');
 
-const { handleCommand1 } = require('../interactionHandling/commandHandling');
+const { handleCommand1, handleUserInfoCom, handleMsgInfoCom } = require('../interactionHandling/commandHandling');
 
 const commandHandlers = {
   command1: handleCommand1,
-  command2: handleCommand2,
+  'User Information': handleUserInfoCom,
+  'Message Information': handleMsgInfoCom
 };
 
 async function handleCommand2(interaction) {
