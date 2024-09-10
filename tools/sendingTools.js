@@ -36,7 +36,8 @@ async function sendEmbed(entity, embed, ephemeral = false) {
 
   const options = {
     embeds: [embedBuilder],
-    ephemeral: ephemeral
+    ephemeral: ephemeral,
+    fetchReply: true
   };
 
   if (imageUrl || files) {
@@ -134,7 +135,8 @@ async function editEmbed(botMessage, newEmbed, interaction) {
     .setDescription(truncate(description || embed.description, 4096));
 
   const options = {
-    embeds: [updatedEmbed]
+    embeds: [updatedEmbed],
+    fetchReply: true
   };
 
   const existingAttachments = botMessage.attachments.map(attachment => ({
