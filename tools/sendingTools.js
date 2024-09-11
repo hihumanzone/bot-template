@@ -5,7 +5,7 @@ const url = require('url');
 const hexColour = '#505050'; // You can change this to any color you prefer
 const errorHexColour = '#e74c3c'; // Color for error embeds
 const fallbackIconURL = 'https://ai.google.dev/static/site-assets/images/share.png';
-const fallbackText = 'Bot Template - Catalyst';
+const fallbackText = 'Bot Template • Catalyst';
 
 function truncate(str, maxLength) {
   return str.length > maxLength ? str.slice(0, maxLength - 3) + '...' : str;
