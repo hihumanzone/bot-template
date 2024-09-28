@@ -142,7 +142,7 @@ async function editEmbed(botMessage, newEmbed, interaction) {
   const existingAttachments = botMessage.attachments.map(attachment => ({
     attachment: attachment.url
   }));
-  
+
   if (imageUrl || files) {
     const existingAttachments = (botMessage.attachments || [])
       .filter(attachment => !(attachment.name.startsWith('image-') && imageUrl))
@@ -150,7 +150,7 @@ async function editEmbed(botMessage, newEmbed, interaction) {
         attachment: attachment.url
       }));
     options.files = existingAttachments;
-  
+
     if (imageUrl) {
       const parsedUrl = new URL(imageUrl);
       const imageExtension = path.extname(parsedUrl.pathname) || '.png';
@@ -159,7 +159,7 @@ async function editEmbed(botMessage, newEmbed, interaction) {
       embedBuilder.setImage(`attachment://${imgName}`)
       options.files.push(attachment);
     }
-  
+
     if (files) {
       options.files.push(...files);
     }
@@ -168,8 +168,13 @@ async function editEmbed(botMessage, newEmbed, interaction) {
   }
 
   try {
-    const msg = await botMessage.edit(options);
-    return msg;
+    if (interaction) {
+      const msg = await interaction.editReply(options);
+      return msg;
+    } else {
+      const msg = await botMessage.edit(options);
+      return msg;
+    }
   } catch (error) {
     const errorMsg = `Error editing embed message: ${error.message}`;
     console.error(errorMsg);

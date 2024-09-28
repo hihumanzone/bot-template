@@ -35,11 +35,11 @@ function clearOldResponses() {
 
 setInterval(clearOldResponses, 60 * 60 * 1000);
 
-async function textDmSendButton(message, text) {
+async function textDmSendButton(message, text, interaction = null) {
   const id = message.id;
   textAndId[id] = { text, timestamp: Date.now() };
   saveResponses();
-  await addButton(message, { id: 'get_full', label: 'Get Full', emoji: '📑' });
+  await addButton(message, { id: 'get_full', label: 'Get Full', emoji: '📑' }, interaction);
 }
 
 async function getFull(interaction) {

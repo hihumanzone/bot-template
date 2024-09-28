@@ -1,6 +1,6 @@
 const { ButtonBuilder, ButtonStyle, ComponentType, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
 
-async function addButton(botMessage, button) {
+async function addButton(botMessage, button, interaction) {
   const { id, label, emoji, style = 'SECONDARY' } = button;
   try {
     if (!botMessage) return;
@@ -30,46 +30,65 @@ async function addButton(botMessage, button) {
 
     const finalActionRows = actionRows.map(row => row.toJSON());
 
-    return await botMessage.edit({ components: finalActionRows });
+    let msg;
+    if (interaction) {
+      msg = await interaction.editReply({ components: finalActionRows });
+    } else {
+      msg = await botMessage.edit({ components: finalActionRows });
+    }
+    return msg;
   } catch (error) {
     console.error('Error adding button:', error.message);
     return botMessage;
   }
 }
 
-async function addStringMenu(botMessage, menu, options = {}) {
-  const { id, placeholder, options: menuOptions } = menu;
-  const { defaultOption } = options;
-
+async function addStringMenu(botMessage, menu, interaction) {
+  const { id, placeholder, menuOptions, defaultOption } = menu;
   try {
     if (!botMessage) return;
+
+    const newMenuOptions = menuOptions.map(option => {
+      if (defaultOption && option.value === defaultOption) {
+        return { ...option, default: true };
+      }
+      return option;
+    });
 
     const newMenu = new StringSelectMenuBuilder()
       .setCustomId(id)
       .setPlaceholder(placeholder)
-      .addOptions(menuOptions);
-
-    if (defaultOption) {
-      newMenu.setDefaultOption(defaultOption);
-    }
+      .addOptions(newMenuOptions);
 
     const newActionRow = new ActionRowBuilder().addComponents(newMenu);
 
     const messageComponents = botMessage.components || [];
     messageComponents.push(newActionRow);
 
-    return await botMessage.edit({ components: messageComponents });
+    let msg;
+    if (interaction) {
+      msg = await interaction.editReply({ components: messageComponents });
+    } else {
+      msg = await botMessage.edit({ components: messageComponents });
+    }
+    return msg;
   } catch (error) {
     console.error('Error adding string menu:', error.message);
     return botMessage;
   }
 }
 
-async function clearComponents(botMessage) {
+async function clearComponents(botMessage, interaction) {
   try {
     if (!botMessage) return;
 
-    return await botMessage.edit({ components: [] });
+    let msg;
+    if (interaction) {
+      msg = await interaction.editReply({ components: [] });
+    } else {
+      msg = await botMessage.edit({ components: [] });
+    }
+    return msg;
   } catch (error) {
     console.error('Error clearing components:', error.message);
     return botMessage;

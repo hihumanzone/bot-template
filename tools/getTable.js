@@ -44,4 +44,24 @@ const convertJsonToTable = (json) => {
   ].join('\n');
 };
 
+/*
+const exampleObj = {
+  name: 'John Doe',
+  age: 30,
+  occupation: 'Software Developer',
+  country: 'USA'
+};
+*/
+
+function objectToTable(obj, separator = '-') {
+  const maxKeyLength = Math.max(...Object.keys(obj).map(key => key.length));
+
+  const table = Object.entries(obj).map(([key, value]) => {
+      const paddedKey = key.padStart(maxKeyLength, ' ');
+      return `${paddedKey} ${separator} ${value}`;
+  }).join('\n');
+
+  return table;
+}
+
 module.exports = { convertJsonToTable };

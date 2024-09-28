@@ -3,6 +3,7 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits, InteractionType, Events } = require('discord.js');
 const { registerCommands } = require('./commands');
+const { startActivityUpdates } = require('./activities');
 const { handleTextMessage } = require('./message');
 const {
   handleCommandInteraction,
@@ -26,7 +27,8 @@ const client = new Client({
 
 client.once('ready', async () => {
   console.log(`=> Logged in as \`${client.user.username}\`!`);
-  await registerCommands(client);
+  registerCommands(client);
+  startActivityUpdates(client);
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
