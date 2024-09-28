@@ -35,7 +35,7 @@ function clearOldResponses() {
 
 setInterval(clearOldResponses, 60 * 60 * 1000);
 
-async function textDmSendButton(message, text, interaction = null) {
+async function textDmSendButton(message, text, interaction) {
   const id = message.id;
   textAndId[id] = { text, timestamp: Date.now() };
   saveResponses();
@@ -79,4 +79,4 @@ async function uploadText(text) {
   }
 }
 
-module.exports = { textDmSendButton, getFull, uploadText };
+module.exports = { textDmSendButton, getFull, uploadText };module.exports = { textDmSendButton, getFull, uploadText };
