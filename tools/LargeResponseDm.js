@@ -79,4 +79,4 @@ async function uploadText(text) {
   }
 }
 
-module.exports = { textDmSendButton, getFull, uploadText };module.exports = { textDmSendButton, getFull, uploadText };
+module.exports = { textDmSendButton, getFull, uploadText };
