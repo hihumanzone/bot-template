@@ -7,7 +7,7 @@ async function handleTextMessage(message) {
   msg = await addButton(msg, { id: 'delete_message', label: 'Delete', emoji: '🗑️' });
   msg = await addButton(msg, { id: 'send_message', label: 'Send', emoji: '📟' });
   msg = await addButton(msg, { id: 'list_message', label: 'List', emoji: '📃' });
-  await textDmSendButton(msg, 'Hey, this is a test.', interaction);
+  await textDmSendButton(msg, 'Hey, this is a test.');
 }
 
 module.exports = { handleTextMessage };
