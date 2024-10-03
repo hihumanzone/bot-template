@@ -2,11 +2,11 @@
 
 require('dotenv').config();
 const { Client, GatewayIntentBits, InteractionType, Events } = require('discord.js');
-const { registerCommands } = require('./commands');
+const { registerCommands, handleCommandInteraction } = require('./commands');
+const { convertJsonToTable } = require('./tools/getTable');
 const { startActivityUpdates } = require('./activities');
 const { handleTextMessage } = require('./message');
 const {
-  handleCommandInteraction,
   handleButtonInteraction,
   handleModalSubmit,
   handleSelectMenuInteraction,
@@ -26,7 +26,7 @@ const client = new Client({
 // <=====[ Handling ]=====>
 
 client.once('ready', async () => {
-  console.log(`=> Logged in as \`${client.user.username}\`!`);
+  console.log(convertJsonToTable({ 'Status': ['Name', 'ID'], 'Logged In!': [client.user.tag, client.user.id]}));
   registerCommands(client);
   startActivityUpdates(client);
 });

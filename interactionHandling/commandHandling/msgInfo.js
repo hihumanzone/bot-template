@@ -1,9 +1,15 @@
+const { ContextMenuCommandBuilder, ApplicationCommandType } = require('discord.js');
 const { sendEmbed } = require('../../tools/sendingTools');
 const { addButton } = require('../../tools/addInteractions');
+const { makeUserInstallable } = require('../../tools/others');
 
 function trimToMaxLength(text, maxLength) {
   return text.length > maxLength ? text.substring(0, maxLength - 3) + '...' : text;
 }
+
+const comMsgInfo = new ContextMenuCommandBuilder()
+	.setName('Message Information')
+	.setType(ApplicationCommandType.Message);
 
 async function handleMsgInfoCom(interaction) {
   const message = interaction.targetMessage;
@@ -41,4 +47,4 @@ async function handleMsgInfoCom(interaction) {
   let msg = await sendEmbed(interaction, { title: 'Message Info', description: msgInfo });
 }
 
-module.exports = { handleMsgInfoCom };
+module.exports = { handleMsgInfoCom, comMsgInfo: makeUserInstallable(comMsgInfo) };

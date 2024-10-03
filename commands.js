@@ -1,123 +1,84 @@
-const { SlashCommandBuilder, ContextMenuCommandBuilder, ApplicationCommandType, REST, Routes } = require('discord.js');
+const { REST, Routes } = require('discord.js');
+const { sendEmbed } = require('./tools/sendingTools');
+const { convertJsonToTable } = require('./tools/getTable');
+const fs = require('fs');
+const path = require('path');
 
-const command1 = new SlashCommandBuilder()
-  .setName('command1')
-  .setDescription('Replies with the provided message')
-  .addStringOption(option => 
-    option
-      .setName('message')
-      .setDescription('The message to send')
-      .setRequired(true)
-  );
+async function scanAndProcessCommands() {
+  const directoryPath = path.join(__dirname, 'interactionHandling', 'commandHandling');
+  const files = fs.readdirSync(directoryPath).filter(file => file.endsWith('.js'));
 
-/*
-Complex command examples:
-```js
-const config = JSON.parse(fs.readFileSync('config.json', 'utf-8'));
+  const secondVariablesArray = [];
+  const nameToFirstFunctionMap = {};
 
-const modelChoices = Object.entries(config.providers)
-  .flatMap(([, { models }]) =>
-    Object.keys(models).map(model => ({ name: model, value: model }))
-  );
+  for (const file of files) {
+    const filePath = path.join(directoryPath, file);
+    const fileContent = fs.readFileSync(filePath, 'utf8');
 
-const actionChoices = [
-  { name: 'Ask', value: 'ask' },
-  { name: 'Fix grammar and phrasing errors', value: 'fix_grammar' },
-  { name: 'Fix errors and simplify', value: 'simplify' },
-  { name: 'Fix code indexing', value: 'fix_indexing' },
-  { name: 'Refactor code', value: 'refactor' },
-  { name: 'Translate to English', value: 't_english' }
-];
+    const match = fileContent.match(/module\.exports\s*=\s*{([^}]+)}/);
+    if (match) {
+      const exportsContent = match[1].trim().split(',').map(part => part.trim());
+      
+      if (exportsContent.length >= 2) {
+        const [firstFunctionName, secondVariableName] = exportsContent.map(part => part.split(':')[0].trim());
+        
+        const { [firstFunctionName]: firstFunction, [secondVariableName]: secondVariable } = require(filePath);
 
-const askCommand = new SlashCommandBuilder()
-  .setName('ask')
-  .setDescription('Ask an AI assistant a question or choose an action.')
-  .addStringOption(option =>
-    option
-    .setName('prompt')
-    .setDescription('The question or prompt to ask the assistant.')
-    .setRequired(true)
-  )
-  .addStringOption(option =>
-    option
-    .setName('action')
-    .setDescription('The desired action to perform.')
-    .addChoices(...actionChoices)
-  )
-  .addStringOption(option =>
-    option
-    .setName('model')
-    .setDescription('The model to use.')
-    .addChoices(...modelChoices)
-  )
-  .addBooleanOption(option =>
-    option
-    .setName('private')
-    .setDescription('Should the response be visible only to you?')
-  );
+        if (typeof secondVariable === 'object' && secondVariable !== null) {
+          secondVariablesArray.push(secondVariable);
 
-const fileTypeChoices = [
-  { name: 'URL', value: 'url' },
-  { name: 'Attachment', value: 'attachment' }
-];
+          if (secondVariable.name && typeof firstFunction === 'function') {
+            nameToFirstFunctionMap[secondVariable.name] = { firstFunctionName, filePath, firstFunction };
+            global[firstFunctionName] = firstFunction;
+          }
+        }
+      }
+    }
+  }
 
-const describeImageCommand = new SlashCommandBuilder()
-  .setName('describe_image')
-  .setDescription('Get a description of an image from the AI assistant.')
-  .addStringOption(option =>
-    option
-    .setName('file_type')
-    .setDescription('Choose between URL or Attachment.')
-    .addChoices(...fileTypeChoices)
-    .setRequired(true)
-  )
-  .addStringOption(option =>
-    option
-    .setName('url')
-    .setDescription('The URL of the image to describe.')
-  )
-  .addAttachmentOption(option =>
-    option
-    .setName('attachment')
-    .setDescription('Attach the image to describe.')
-  )
-  .addStringOption(option =>
-    option
-    .setName('prompt')
-    .setDescription('Any specific details or context you want the assistant to focus on?')
-  )
-  .addBooleanOption(option =>
-    option
-    .setName('private')
-    .setDescription('Should the response be visible only to you?')
-  );
-```
-*/
-
-const userInfo = new ContextMenuCommandBuilder()
-	.setName('User Information')
-	.setType(ApplicationCommandType.User);
-
-const msgInfo = new ContextMenuCommandBuilder()
-	.setName('Message Information')
-	.setType(ApplicationCommandType.Message);
-
-
-function makeUserInstallable(command) {
-  return { ...command, integration_types: [0, 1], contexts: [0, 1, 2] };
+  return { secondVariablesArray, nameToFirstFunctionMap };
 }
 
-const allCommands = [command1, makeUserInstallable(userInfo), makeUserInstallable(msgInfo)]
+let allCommands;
+let commandHandlers;
+
+(async () => {
+  const { secondVariablesArray, nameToFirstFunctionMap } = await scanAndProcessCommands();
+
+  allCommands = secondVariablesArray;
+  commandHandlers = nameToFirstFunctionMap;
+})();
 
 async function registerCommands(client) {
   const rest = new REST().setToken(process.env.DISCORD_TOKEN);
 
   try {
     await rest.put(Routes.applicationCommands(client.user.id), { body: allCommands });
-    console.log('=> Commands Reloaded!');
+    function convertMapToFormattedObject(nameToFirstFunctionMap) {
+      return Object.entries(nameToFirstFunctionMap).reduce((result, [name, { firstFunctionName }]) => {
+        result['Command'].push(name);
+        result['Linked To'].push(firstFunctionName);
+        return result;
+      }, { 'Command': [], 'Linked To': [] });
+    }
+    console.log(convertJsonToTable(convertMapToFormattedObject(commandHandlers)));
   } catch (error) {
     console.error('Error refreshing commands:', error.message);
   }
 }
 
-module.exports = { registerCommands };
+async function handleCommandInteraction(interaction) {
+  const { firstFunction: handler } = commandHandlers[interaction.commandName];
+
+  if (handler) {
+    try {
+      await handler(interaction);
+    } catch (error) {
+      console.error(`Error handling '${interaction.commandName}' command:`, error.message);
+    }
+  } else {
+    await sendEmbed(interaction, { title: 'Unknown Command Interaction', description: `Looks like the \`${interaction.customId}\` interaction doesn't have function attached to it.` }, true);
+  }
+}
+
+module.exports = { registerCommands, handleCommandInteraction };

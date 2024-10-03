@@ -1,5 +1,17 @@
+const { SlashCommandBuilder } = require('discord.js');
 const { sendEmbed } = require('../../tools/sendingTools');
 const { addButton } = require('../../tools/addInteractions');
+const { makeUserInstallable } = require('../../tools/others');
+
+const com1 = new SlashCommandBuilder()
+  .setName('command1')
+  .setDescription('Replies with the provided message')
+  .addStringOption(option => 
+    option
+      .setName('message')
+      .setDescription('The message to send')
+      .setRequired(true)
+  );
 
 async function handleCommand1(interaction) {
   const message = interaction.options.getString('message');
@@ -9,4 +21,4 @@ async function handleCommand1(interaction) {
   msg = await addButton(msg, { id: 'list_message', label: 'List', emoji: '📃' }, interaction);
 }
 
-module.exports = { handleCommand1 };
+module.exports = { handleCommand1, com1 };
