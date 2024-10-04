@@ -1,11 +1,12 @@
 const { EmbedBuilder, AttachmentBuilder } = require('discord.js');
+const { embed } = require('../config')
 const path = require('path');
 const url = require('url');
 
-const hexColour = '#505050'; // You can change this to any color you prefer
+const hexColour = embed.colour;
 const errorHexColour = '#e74c3c'; // Color for error embeds
-const fallbackIconURL = 'https://ai.google.dev/static/site-assets/images/share.png';
-const fallbackText = 'Bot Template • Catalyst';
+const fallbackIconURL = embed.footer_icon_link;
+const fallbackText = embed.footer_text;
 
 function truncate(str, maxLength) {
   return str.length > maxLength ? str.slice(0, maxLength - 3) + '...' : str;

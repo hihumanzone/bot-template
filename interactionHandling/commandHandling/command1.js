@@ -15,7 +15,8 @@ const com1 = new SlashCommandBuilder()
 
 async function handleCommand1(interaction) {
   const message = interaction.options.getString('message');
-  let msg = await sendEmbed(interaction, { title: 'Your Message', description: message }, true);
+  const latency = Date.now() - interaction.createdTimestamp;
+  let msg = await sendEmbed(interaction, { title: `Latency - ${latency}ms`, description: message }, true);
   msg = await addButton(msg, { id: 'delete_message', label: 'Delete', emoji: '🗑️' }, interaction);
   msg = await addButton(msg, { id: 'send_message', label: 'Send', emoji: '📟' }, interaction);
   msg = await addButton(msg, { id: 'list_message', label: 'List', emoji: '📃' }, interaction);

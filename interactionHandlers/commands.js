@@ -1,11 +1,11 @@
 const { REST, Routes } = require('discord.js');
-const { sendEmbed } = require('./tools/sendingTools');
-const { convertJsonToTable } = require('./tools/getTable');
+const { sendEmbed } = require('../tools/sendingTools');
+const { convertJsonToTable } = require('../tools/getTable');
 const fs = require('fs');
 const path = require('path');
 
 async function scanAndProcessCommands() {
-  const directoryPath = path.join(__dirname, 'interactionHandling', 'commandHandling');
+  const directoryPath = path.join(__dirname, '..', 'interactionHandling', 'commandHandling');
   const files = fs.readdirSync(directoryPath).filter(file => file.endsWith('.js'));
 
   const secondVariablesArray = [];

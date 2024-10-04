@@ -1,7 +1,7 @@
 const { ContextMenuCommandBuilder, ApplicationCommandType } = require('discord.js');
-const { sendEmbed } = require('../../tools/sendingTools');
-const { addButton } = require('../../tools/addInteractions');
-const { makeUserInstallable } = require('../../tools/others');
+const { sendEmbed } = require('../../../tools/sendingTools');
+const { addButton } = require('../../../tools/addInteractions');
+const { makeUserInstallable } = require('../../../tools/others');
 
 function trimToMaxLength(text, maxLength) {
   return text.length > maxLength ? text.substring(0, maxLength - 3) + '...' : text;

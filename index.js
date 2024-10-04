@@ -1,10 +1,10 @@
 // <=====[ Import Statments ]=====>
 
 require('dotenv').config();
+const { ACTIVITIES, switch_activity_sec, bot_status } = require('./config')
 const { Client, GatewayIntentBits, InteractionType, Events } = require('discord.js');
-const { registerCommands, handleCommandInteraction } = require('./commands');
+const { registerCommands, handleCommandInteraction } = require('./interactionHandlers/commands');
 const { convertJsonToTable } = require('./tools/getTable');
-const { startActivityUpdates } = require('./activities');
 const { handleTextMessage } = require('./message');
 const {
   handleButtonInteraction,
@@ -30,6 +30,16 @@ client.once('ready', async () => {
   registerCommands(client);
   startActivityUpdates(client);
 });
+
+function startActivityUpdates(client) {
+  updateActivity(client);
+  client.user.setStatus(bot_status);
+  setInterval(() => updateActivity(client), switch_activity_sec*1000);
+}
+function updateActivity(client) {
+  const activity = ACTIVITIES[Math.floor(Math.random() * ACTIVITIES.length)];
+  client.user.setActivity(activity.name, { type: activity.type, url: activity.url });
+}
 
 client.on(Events.InteractionCreate, async (interaction) => {
   try {

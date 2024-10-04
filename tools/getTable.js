@@ -8,12 +8,6 @@ const json = {
 };
 */
 
-const getMaxColumnWidths = (json) => Object.keys(json).map(
-  key => Math.max(key.length, ...json[key].map(item => item.toString().length))
-);
-
-const padString = (str, length) => str.padEnd(length);
-
 const ansiCode = {
   reset: "\x1b[0m",
   whiteTextOnBlackBg: "\x1b[30;47m",
@@ -23,10 +17,10 @@ const ansiCode = {
 
 const convertJsonToTable = (json) => {
   const keys = Object.keys(json);
-  const columnWidths = getMaxColumnWidths(json);
-
-  const createRow = (items) =>
-    items.map((item, i) => padString(item.toString(), columnWidths[i])).join(' | ');
+  const columnWidths = Object.keys(json).map(
+    key => Math.max(key.length, ...json[key].map(item => item.toString().length))
+  );
+  const createRow = items => items.map((item, i) => item.toString().padEnd(columnWidths[i])).join(' | ');
 
   const header = createRow(keys);
   const divider = createRow(columnWidths.map(width => '-'.repeat(width)));
@@ -64,4 +58,4 @@ function objectToTable(obj, separator = '-') {
   return table;
 }
 
-module.exports = { convertJsonToTable };
+module.exports = { convertJsonToTable, objectToTable };

@@ -1,8 +1,8 @@
 const { ContextMenuCommandBuilder, ApplicationCommandType } = require('discord.js');
-const { sendEmbed } = require('../../tools/sendingTools');
-const { convertJsonToTable } = require('../../tools/getTable');
-const { addButton } = require('../../tools/addInteractions');
-const { makeUserInstallable } = require('../../tools/others');
+const { sendEmbed } = require('../../../tools/sendingTools');
+const { convertJsonToTable } = require('../../../tools/getTable');
+const { addButton } = require('../../../tools/addInteractions');
+const { makeUserInstallable } = require('../../../tools/others');
 
 const comUserInfo = new ContextMenuCommandBuilder()
 	.setName('User Information')
