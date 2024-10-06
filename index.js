@@ -1,5 +1,3 @@
-// <=====[ Import Statments ]=====>
-
 require('dotenv').config();
 const { ACTIVITIES, switch_activity_sec, bot_status } = require('./config')
 const { Client, GatewayIntentBits, InteractionType, Events } = require('discord.js');
@@ -12,8 +10,6 @@ const {
   handleSelectMenuInteraction,
 } = require('./interactionHandlers');
 
-// <=====[ Initialising Client ]=====>
-
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -25,7 +21,7 @@ const client = new Client({
 
 // <=====[ Handling ]=====>
 
-client.once('ready', async () => {
+client.once(Events.ClientReady, async () => {
   console.log(convertJsonToTable({ 'Status': ['Name', 'ID'], 'Logged In!': [client.user.tag, client.user.id]}));
   registerCommands(client);
   startActivityUpdates(client);
@@ -40,6 +36,10 @@ function updateActivity(client) {
   const activity = ACTIVITIES[Math.floor(Math.random() * ACTIVITIES.length)];
   client.user.setActivity(activity.name, { type: activity.type, url: activity.url });
 }
+
+client.rest.on('rateLimited', (info) => {
+  console.log(convertJsonToTable({ 'Status': ['Timeout', 'Limit'], 'Rate Limited!': [`${info.timeout}ms`, info.limit]}));
+});
 
 client.on(Events.InteractionCreate, async (interaction) => {
   try {

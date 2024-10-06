@@ -1,15 +1,8 @@
 const { sendEmbed } = require('../tools/sendingTools');
+const { searchAndImportFunctions } = require('../tools/others');
+const path = require('path');
 
-const { handleInputModal } = require('../interactionHandling/modalHandling');
-
-async function handleModal2(interaction) {
-  // Handle the modal2 interaction
-}
-
-const modalHandlers = {
-  inputModal: handleInputModal,
-  modal2: handleModal2,
-};
+const modalHandlers = searchAndImportFunctions(path.join(__dirname, '..', 'interactionHandling', 'modalHandling'));
 
 async function handleModalSubmit(interaction) {
   const handler = modalHandlers[interaction.customId];

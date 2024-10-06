@@ -168,22 +168,28 @@ async function editEmbed(botMessage, newEmbed, interaction) {
     options.files = existingAttachments;
   }
 
+  let mainError = 'null';
   try {
-    if (interaction) {
+    const msg = await botMessage.edit(options);
+    return msg;
+  } catch (error) {
+    mainError = error.message;
+  }
+  if (interaction) {
+    try {
       const msg = await interaction.editReply(options);
       return msg;
-    } else {
-      const msg = await botMessage.edit(options);
-      return msg;
+    } catch (error) {
+      mainError = error.message;
     }
-  } catch (error) {
-    const errorMsg = `Error editing embed message: ${error.message}`;
-    console.error(errorMsg);
-    if (interaction) {
-      await sendErrorDM(interaction, errorMsg);
-    }
-    return botMessage;
   }
+
+  const errorMsg = `Error editing embed message: ${mainError}`;
+  console.error(errorMsg);
+  if (interaction) {
+    await sendErrorDM(interaction, errorMsg);
+  }
+  return botMessage;
 }
 
 module.exports = { sendEmbed, sendErrorDM, editEmbed };

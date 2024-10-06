@@ -16,4 +16,4 @@ async function handleDeleteButton(interaction) {
   }
 }
 
-module.exports = { handleDeleteButton };
+module.exports = { delete_message: handleDeleteButton };

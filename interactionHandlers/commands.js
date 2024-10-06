@@ -4,7 +4,7 @@ const { convertJsonToTable } = require('../tools/getTable');
 const fs = require('fs');
 const path = require('path');
 
-async function scanAndProcessCommands() {
+function scanAndProcessCommands() {
   const directoryPath = path.join(__dirname, '..', 'interactionHandling', 'commandHandling');
   const files = fs.readdirSync(directoryPath).filter(file => file.endsWith('.js'));
 
@@ -24,13 +24,10 @@ async function scanAndProcessCommands() {
         
         const { [firstFunctionName]: firstFunction, [secondVariableName]: secondVariable } = require(filePath);
 
-        if (typeof secondVariable === 'object' && secondVariable !== null) {
+        if (secondVariable && typeof secondVariable === 'object' && secondVariable.name && typeof firstFunction === 'function') {
           secondVariablesArray.push(secondVariable);
-
-          if (secondVariable.name && typeof firstFunction === 'function') {
-            nameToFirstFunctionMap[secondVariable.name] = { firstFunctionName, filePath, firstFunction };
-            global[firstFunctionName] = firstFunction;
-          }
+          nameToFirstFunctionMap[secondVariable.name] = { firstFunctionName, filePath, firstFunction };
+          global[firstFunctionName] = firstFunction;
         }
       }
     }

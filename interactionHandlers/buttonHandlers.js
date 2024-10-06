@@ -1,14 +1,11 @@
 const { sendEmbed } = require('../tools/sendingTools');
-
-const { handleDeleteButton, handleSendButton, handleListButton } = require('../interactionHandling/buttonHandling');
 const { getFull } = require('../tools/LargeResponseDm');
+const { searchAndImportFunctions } = require('../tools/others');
+const path = require('path');
 
 const buttonHandlers = {
-  delete_message: handleDeleteButton,
   get_full: getFull,
-  // You can add more..
-  send_message: handleSendButton,
-  list_message: handleListButton
+  ...(searchAndImportFunctions(path.join(__dirname, '..', 'interactionHandling', 'buttonHandling')))
 };
 
 async function handleButtonInteraction(interaction) {

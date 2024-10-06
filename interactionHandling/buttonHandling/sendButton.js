@@ -39,4 +39,4 @@ async function handleSendButton(interaction) {
   await interaction.showModal(modal);
 }
 
-module.exports = { handleSendButton };
+module.exports = { send_message: handleSendButton };

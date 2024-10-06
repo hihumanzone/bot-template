@@ -10,4 +10,4 @@ async function handleInputModal(interaction) {
   let msg = editEmbed(interaction.message, { title: titleInput, description: textInput }, interaction);
 }
 
-module.exports = { handleInputModal };
+module.exports = { inputModal: handleInputModal };

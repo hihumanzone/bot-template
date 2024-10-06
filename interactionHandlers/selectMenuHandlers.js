@@ -1,15 +1,8 @@
 const { sendEmbed } = require('../tools/sendingTools');
+const { searchAndImportFunctions } = require('../tools/others');
+const path = require('path');
 
-const { handeMessagesMenu } = require('../interactionHandling/selectMenuHandling');
-
-async function handleMenu2(interaction) {
-  // Handle the menu2 interaction
-}
-
-const selectMenuHandlers = {
-  message_menu: handeMessagesMenu,
-  menu2: handleMenu2,
-};
+const selectMenuHandlers = searchAndImportFunctions(path.join(__dirname, '..', 'interactionHandling', 'selectMenuHandling'));
 
 async function handleSelectMenuInteraction(interaction) {
   const handler = selectMenuHandlers[interaction.customId];

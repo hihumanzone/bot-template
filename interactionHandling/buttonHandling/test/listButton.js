@@ -1,7 +1,6 @@
 const { sendEmbed } = require('../../tools/sendingTools');
 const { addStringMenu, addButton } = require('../../tools/addInteractions');
 
-
 const menuOptions = [
   {
     label: 'hey',
@@ -35,4 +34,4 @@ async function handleListButton(interaction) {
   msg = await addButton(msg, { id: 'delete_message', label: 'Delete', emoji: '🗑️' }, interaction);
 }
 
-module.exports = { handleListButton };
+module.exports = { list_message: handleListButton };

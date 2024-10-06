@@ -7,4 +7,4 @@ async function handeMessagesMenu(interaction) {
   msg = await addButton(msg, { id: 'delete_message', label: 'Delete', emoji: '🗑️' });
 }
 
-module.exports = { handeMessagesMenu };
+module.exports = { message_menu: handeMessagesMenu };
